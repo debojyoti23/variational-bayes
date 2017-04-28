@@ -1,0 +1,415 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beamer Presentation
+% LaTeX Template
+% Version 1.0 (10/11/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND THEMES
+%----------------------------------------------------------------------------------------
+
+\documentclass{beamer}
+
+\mode<presentation> {
+
+% The Beamer class comes with a number of default slide themes
+% which change the colors and layouts of slides. Below this is a list
+% of all the themes, uncomment each in turn to see what they look like.
+
+%\usetheme{default}
+%\usetheme{AnnArbor}
+%\usetheme{Antibes}
+%\usetheme{Bergen}
+%\usetheme{Berkeley}
+%\usetheme{Berlin}
+%\usetheme{Boadilla}
+%\usetheme{CambridgeUS}
+%\usetheme{Copenhagen}
+%\usetheme{Darmstadt}
+%\usetheme{Dresden}
+%\usetheme{Frankfurt}
+%\usetheme{Goettingen}
+%\usetheme{Hannover}
+%\usetheme{Ilmenau}
+%\usetheme{JuanLesPins}
+%\usetheme{Luebeck}
+\usetheme{Madrid}
+%\usetheme{Malmoe}
+%\usetheme{Marburg}
+%\usetheme{Montpellier}
+%\usetheme{PaloAlto}
+%\usetheme{Pittsburgh}
+%\usetheme{Rochester}
+%\usetheme{Singapore}
+%\usetheme{Szeged}
+%\usetheme{Warsaw}
+
+% As well as themes, the Beamer class has a number of color themes
+% for any slide theme. Uncomment each of these in turn to see how it
+% changes the colors of your current slide theme.
+
+%\usecolortheme{albatross}
+%\usecolortheme{beaver}
+%\usecolortheme{beetle}
+%\usecolortheme{crane}
+%\usecolortheme{dolphin}
+%\usecolortheme{dove}
+%\usecolortheme{fly}
+%\usecolortheme{lily}
+%\usecolortheme{orchid}
+%\usecolortheme{rose}
+%\usecolortheme{seagull}
+%\usecolortheme{seahorse}
+%\usecolortheme{whale}
+%\usecolortheme{wolverine}
+
+%\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
+%\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
+
+%\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
+}
+
+\usepackage{graphicx} % Allows including images
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{multicol}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\newcommand{\E}{\mathbb{E}}
+\renewcommand{\L}{\mathcal{L}}
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\title[Stochastic VB]{Survey on Stochastic Variational Inference } % The short title appears at the bottom of every slide, the full title is only on the title page
+
+\author{Debojyoti Dey} % Your name
+\institute[IITK] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
+{
+Indian Institute of Technology Kanpur \\ % Your institution for the title page
+\medskip
+\textit{debojyot@cse.iitk.ac.in} % Your email address
+}
+\date{\today} % Date, can be changed to a custom date
+
+\begin{document}
+
+
+\begin{frame}
+\titlepage % Print the title page as the first slide
+\end{frame}
+
+\begin{frame}
+\frametitle{Overview} % Table of contents slide, comment this block out to remove it
+\tableofcontents % Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+%	PRESENTATION SLIDES
+%----------------------------------------------------------------------------------------
+
+%------------------------------------------------
+\section{Variational Inference} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
+%------------------------------------------------
+
+%\subsection{Objective} % A subsection can be created just before a set of slides with a common theme to further break down your presentation into chunks
+
+\subsection{Definition}
+\begin{frame}
+\frametitle{Approximating Posterior}
+Aim is to compute posterior
+\[
+p(z|x)=\frac{p(x,z)}{p(x)}
+\]
+Oftentimes, marginal likelihood $p(x)$ in not available in closed form or computing takes exponential time.\\~\\
+
+\textbf{Role of VB}: Approximate posterior with \textit{exact conditional} $q(z)\in \mathcal{Q}$, where $\mathcal{Q}$ is a family of pdf over latent variables.
+\[
+q^\star(z)=\argmin_{q(z)\in \mathcal{Q}} KL(q(z)||p(z|x))
+\]
+Equivalent to maximizing \textit{Variational Lower bound} given by,
+\[
+ELBO(q)=\E_{q(z)}\left[\log\frac{p(x,z)}{q(z)}\right]
+\]
+
+\end{frame}
+
+%------------------------------------------------
+\subsection{Mean-field VB}
+\begin{frame}
+\frametitle{Mean Field Variational Family}
+
+Latent variables are assumed to be independent.
+% \begin{multicols}{2}
+\[
+q(\overline{z})=\prod_{j=1}^{m}q_j(z_j)
+\]
+% \columnbreak
+% \begin{figure}
+% \centering
+% \includegraphics[scale=0.2]{mean_field.png}
+% \end{figure}
+% \end{multicols}
+Doesn't take correlation into account. \\~\\
+\textbf{Example Model}: Hierarchical model with global(\(\beta\)) and local(\(z\)) latent variables.
+\[
+p(\beta,z,x)=p(\beta)\prod_{i=1}^{N}p(z_i|\beta)p(x_i|z_i,\beta)
+\]
+\[
+q(\beta,z)=q(\beta)\prod_i q(z_i)
+\]
+
+\end{frame}
+
+%------------------------------------------------
+\subsection{Conjugate model}
+\begin{frame}
+\frametitle{Complete Data Conjugate Model}
+Complete conditionals over global parameters are assumed to be from exponential family,
+\[
+p(\beta|x,z,\alpha) \propto \exp\{\langle\eta_g(x,z,\alpha),t(\beta)\rangle -a_g(\eta_g(x,z,\alpha))\}
+\]
+\[
+p(z_{nj}|x_n,z_{n,-j},\beta) \propto \exp\{\langle\eta_l(x_n,z_{n,-j},\beta),t(z_{nj})\rangle-a_l(\eta_l(x_n,z_{n,-j},\beta))\}
+\]
+This implies conjugacy relationship between global variable $\beta$ and local context $(z_n,x_n)$.\\~\\
+Variational family,
+\[
+q(\beta|\lambda) \propto \exp\{\langle\lambda,t(\beta)\rangle-a_g(\lambda)\}
+\]
+\[
+q(z_{nj}|\phi_{nj}) \propto \exp\{\langle\phi_{nj},t(z_{nj})\rangle-a_l(\phi_{nj})\}
+\]
+\end{frame}
+
+%------------------------------------------------
+\subsection{Coordinate ascent}
+\begin{frame}
+\frametitle{Evidence Lower bound and Coordinate ascent}
+We need to maximize ELBO,
+\begin{equation}
+\L(q)=\E_q[\log p(x,z,\beta)]-\E_q[\log q(z,\beta)]
+\end{equation}
+By virtue of mean-field assumption i.e. independence between variational parameters,
+\[
+\L(\lambda)= \E_q[\log p(\beta|x,z)]-\E_q[\log q(\beta)] + const
+\]
+Replacing $\E_q[t(\beta)]=\nabla_\lambda a_g(\lambda)$ and differentiating,
+\begin{equation}
+\nabla_\lambda\L=\nabla_\lambda^2a_g(\lambda)(\E_q[\eta_g(x,z,\alpha)]-\lambda)
+\end{equation}
+Similarly,
+\begin{equation}
+\nabla_{\phi_{nj}}\L=\nabla_{\phi_{nj}}^2a_g(\phi_{nj})(\E_q[\eta_l(x_n,z_{n,-j},\beta)]-\phi_{nj})
+\end{equation}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Coordinate Ascent Variational Inference(CAVI)}
+
+\begin{algorithm}[H]
+	\caption{Coordinate Ascent VI}
+	\label{icTree}
+	\begin{algorithmic}[1]
+		\STATE Initialize $\lambda^0$ randomly
+		\REPEAT 
+			\FOR{each local variational parameter $\phi_{nj}$} 
+				\STATE {Update $\phi_{nj}^{(t)}$:~$\phi_{nj}^{(t)}=\E_{q^{(t-1)}}[\eta_l(x_n,z_{n,-j},\beta)]$}
+			\ENDFOR
+		\STATE{Update the global variational parameters, $\lambda^{(t)}=\E_{q^{(t)}}[\eta_g(z_{1:N},x_{1:N})]$} 
+		\UNTIL{the ELBO converges}
+	\end{algorithmic}
+\end{algorithm}
+\textit{Note}: Convergence using threshold of change in ELBO\\
+\textbf{Problems:}
+\begin{itemize}
+\item Random initialization of $\lambda$
+\item Updating all local variational parameter based on the random initialization.
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\section{Natural gradient}
+\begin{frame}
+\frametitle{Natural Gradient of ELBO}
+Gradient update
+\[
+\lambda^{(t+1)}=\lambda^{(t)}+\rho\nabla_\lambda f(\lambda^{(t)})
+\]
+gives steepest ascent in Euclidean space of $\lambda$.\\~\\
+
+Realistic distance between pdf: Symmetrized KL
+\[
+D^{sym}_{KL}(\lambda,\lambda')=\E_\lambda\left[\log\frac{q(\beta|\lambda)}{q(\beta|\lambda')}\right] + \E_\lambda'\left[\log\frac{q(\beta|\lambda')}{q(\beta|\lambda)}\right]
+\]
+can be expressed in terms of Riemannian metric $G(\lambda)$ giving linear transformation to $\lambda$, Euclidean distance between $\lambda$ and $\lambda+d\lambda$ in transformed space
+\[
+d\lambda^TG(\lambda)d\lambda = D^{sym}_{KL}(\lambda,\lambda+d\lambda)
+\]
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Natural Gradient of ELBO}
+Natural gradient of $f(\lambda)$ is shown to be,
+\[
+\hat{\nabla}_\lambda f(\lambda) \triangleq G(\lambda)^{-1}\nabla_\lambda f(\lambda)
+\]
+$G$ is Fisher information matrix of $q(\lambda)$,
+\[
+G(\lambda)=\E_\lambda\left[(\nabla_\lambda\log q(\beta|\lambda))(\nabla_\lambda\log q(\beta|\lambda))^T\right] \approx \nabla_\lambda^2a_g(\lambda)
+\]
+So natural gradient has simple form,
+\[
+\hat{\nabla}_\lambda \L(\lambda) = \E_q[\eta_g(x,z,\alpha)]-\lambda
+\]
+Similarly follows,
+\[
+\hat{\nabla}_{\phi_{nj}} \L(\phi_{nj}) = \E_q[\eta_l(x_n,z_{n,-j},\beta)]-\phi_{nj}
+\]
+\end{frame}
+%------------------------------------------------
+
+\section{Stochastic Variational Inference}
+\begin{frame}
+\frametitle{Stochastic VB}
+%\begin{block}{Drawback with normal VB}
+%Optimize local variational parameters for each data point before re-estimating global variational parameters. Inefficient for large data sets!
+%\end{block}
+\textbf{Properties of SVI:}
+\begin{enumerate}
+\item Sample a data point $i\sim Unif(1,2,\ldots,N)$ at random. Optimize its local variational parameters
+\item Form intermediate global variational parameters. Traditional coordinate ascent with sampled data point repeated $N$ times in computing ELBO, producing natural gradient
+\[
+\hat\nabla_\lambda\L_i = \alpha + N.(\E_{\phi_i(\lambda)}[t(x_i,z_i)],1)-\lambda
+\]
+\begin{equation}
+\label{eq:svi1}
+\hat{\lambda}_t \triangleq \alpha + N.(\E_{\phi_i(\lambda)}[t(x_i,z_i)],1)
+\end{equation}
+\item Update global variational parameter as weighted avg of intermediate and current value.
+\begin{equation}
+\label{eq:svi2}
+\lambda^{(t)}=(1-\rho_t)\lambda^{(t-1)}+\rho_t\hat{\lambda}_t
+\end{equation}
+
+\end{enumerate}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{SVI Algorithm}
+\begin{algorithm}[H]
+	\caption{Stochastic Variational Inference}
+	\label{icTree}
+	\begin{algorithmic}[1]
+		\STATE Initialize $\lambda^0$ randomly
+		\STATE Set the step size $\rho_t$ s.t. $\sum \rho_t=\infty$, $\sum \rho_t^2<\infty$
+		\REPEAT 
+			\STATE Sample a data point $x_i$ uniformly at random.
+			\STATE Compute its local variational parameter
+			\STATE \begin{equation*}
+			\phi = \E_{\lambda^{(t-1)}}[\eta_g(x_i^{(N)},z_i^{(N)})]
+			\end{equation*}
+			\STATE Compute intermediate global parameters with $x_i$ is replicated $N$ times as equation \ref{eq:svi1}
+%			\STATE \begin{equation*}
+%			\hat{\lambda}_t = \E_\phi[\eta_g(x^{(N)}_i,z^{(N)}_i)]
+%			\end{equation*}
+		\STATE Update the current estimate of global variational parameters as equation \ref{eq:svi2}
+%		\STATE \begin{equation*}
+%		\lambda^{(t)}=(1-\rho_t)\lambda^{(t-1)}+\rho_t\hat{\lambda}_t
+%		\end{equation*}
+		\UNTIL{the ELBO converges}
+	\end{algorithmic}
+\end{algorithm}
+\end{frame}
+
+%------------------------------------------------
+\section{Black Box Variational Inference}
+
+\subsection{Definition}
+\begin{frame}
+\frametitle{Black Box Variational Inference}
+General model with observations $x$ and parameter $\theta$ having joing distribution
+\[
+p(\theta,x)=p(\theta)\prod_{i=1}^{N}p(x^i|\theta)
+\]
+and variational distribution of $\theta$,
+\[
+q(\theta)=q(\theta|\lambda)
+\]
+with free parameter $\lambda$\\~\\
+\[
+\L=\E_q(\theta)\left[\log\frac{p(\theta,x)}{q(\theta)}\right]
+\]
+\[
+\nabla_\lambda\L = \nabla_\lambda\int q(\theta)\log\frac{p(\theta,x)}{q(\theta)}d\theta
+\]
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Black Box Variational Inference}
+Gradient can be obtained using Monte Carlo approximation
+\begin{align*}
+\nabla_\lambda\L &= \int\nabla_\lambda \log\frac{p(\theta,x)}{q(\theta)} q(\theta) d\theta +\int \log\frac{p(\theta,x)}{q(\theta)}\nabla_\lambda(q_\theta) d\theta\\
+&= 0+\E_{q(\theta)}\left[\log\frac{p(\theta,x)}{q(\theta)}\nabla_\lambda\log q(\theta)\right]\\
+&\approx \frac{1}{|S|}\sum_{\hat{\theta}\in S}\log\frac{p(\hat\theta,x)}{q(\hat\theta)}\nabla_\lambda\log q(\hat{\theta)}
+\end{align*}
+Score function $\nabla_\lambda\log q(\theta)$. Scalable BBVI with subsampling
+\begin{equation*}
+\nabla_\lambda\L \approx \frac{1}{|S|}\sum_{\hat{\theta}\in S}\left(\log\frac{p(\hat\theta,x)}{q(\hat\theta)}+N\log p(x_i|\hat{\theta})\right)\nabla_\lambda\log q(\hat{\theta})
+\end{equation*}
+where $i \sim Uniform(1,2,\ldots,N)$
+\end{frame}
+
+%------------------------------------------------
+
+\subsection{Controlling Variance}
+\begin{frame}
+\frametitle{Reducing the Variance}
+Because of two levels of sampling, stochastic version of BBVI has gradient with high variance. Small steps will lead to slow convergence.\\~\\
+
+\textbf{Variance reduction methods}
+\begin{itemize}
+\item Rao Blackwellization: replacing random variable by replacing with conditional expectation wrt subset of variables.
+\item Control Variates
+\item Reparameterization gradient instead of score function gradient
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}[allowframebreaks]
+    \frametitle{References}
+    \nocite{*}
+    \bibliographystyle{amsalpha}
+    \bibliography{svi}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\Huge{\centerline{The End}}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\end{document}
